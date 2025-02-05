@@ -1,16 +1,18 @@
 import { UserInfo } from "@/components/user-info"
 import { ActionButtons } from "@/components/action-buttons"
 import { Button } from "@/components/ui/button"
-import { LogOut, Shield } from "lucide-react"
+import { LogOut, Shield, RefreshCw } from "lucide-react"
 import { Toaster } from "sonner"
 import { cookies } from "next/headers"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { env } from "@/env"
-import { getUserStatus } from "./actions"
+import { getUserStatus, syncAllSystems } from "./actions"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import React from "react"
 import { ErrorState } from "@/components/error-state"
+import { SyncButton } from "@/components/sync-button"
+import { LoginButton } from "@/components/login-button"
 
 // 加载状态组件
 function LoadingState() {
@@ -48,12 +50,7 @@ export default async function HomePage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button asChild className="w-full gap-2">
-              <a href="/api/login">
-                <Shield className="h-4 w-4" />
-                {env.OIDC_DISPLAY_NAME}
-              </a>
-            </Button>
+            <LoginButton title={env.OIDC_DISPLAY_NAME} />
           </CardContent>
         </Card>
       </div>
@@ -86,7 +83,8 @@ export default async function HomePage() {
       <Toaster />
       <div className="min-h-screen p-8">
         <div className="max-w-2xl mx-auto space-y-6">
-          <div className="flex justify-end">
+          <div className="flex justify-end gap-2">
+            <SyncButton />
             <Button variant="ghost" size="icon" asChild>
               <a href="/api/logout">
                 <LogOut className="h-5 w-5" />
@@ -99,15 +97,7 @@ export default async function HomePage() {
           ) : !userData ? (
             <LoadingState />
           ) : (
-            <>
-              <UserInfo {...userData} />
-              <div className="flex justify-center">
-                <ActionButtons 
-                  isRegistered={userData.isRegistered} 
-                  needsSync={userData.needsSync}
-                />
-              </div>
-            </>
+            <UserInfo {...userData} />
           )}
         </div>
       </div>

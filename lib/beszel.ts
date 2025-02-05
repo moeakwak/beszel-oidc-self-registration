@@ -1,4 +1,4 @@
-import PocketBase, { RecordModel } from "pocketbase";
+import PocketBase, { RecordModel, ClientResponseError } from "pocketbase";
 import { env } from "@/env";
 
 export const superuserClient = new PocketBase(env.BESZEL_URL);
@@ -52,16 +52,31 @@ export async function findUser(
   }
 }
 
+function handlePocketBaseError(error: unknown, operation: string): never {
+  console.error(`Error during ${operation}:`, error);
+  if (error instanceof ClientResponseError) {
+    console.error('Response details:', {
+      status: error.status,
+      response: error.response,
+      message: error.message,
+      data: error.data,
+    });
+  }
+  throw error instanceof Error 
+    ? error 
+    : new Error(`Failed to ${operation}`);
+}
+
 export async function createUser(data: {
   username: string;
   email: string;
   name: string;
 }): Promise<RecordModel> {
-  await loginSuperuser();
-  const role = (env.USER_CREATION_ROLE || "readonly") as "user" | "readonly";
-  const password = crypto.randomUUID();
-
   try {
+    await loginSuperuser();
+    const role = (env.USER_CREATION_ROLE || "readonly") as "user" | "readonly";
+    const password = crypto.randomUUID();
+
     const args = {
       ...data,
       role,
@@ -70,12 +85,22 @@ export async function createUser(data: {
       emailVisibility: true,
       verified: true,
     };
-    console.log(args);
     const user = await superuserClient.collection("users").create(args);
+    
+    // 创建后立即同步所有系统
+    const systems = await superuserClient.collection("systems").getFullList();
+    for (const system of systems) {
+      const users: string[] = system.users || [];
+      if (!users.includes(user.id)) {
+        await superuserClient.collection("systems").update(system.id, {
+          users: [...users, user.id],
+        });
+      }
+    }
+    
     return user;
   } catch (error) {
-    console.error("Create user error:", error);
-    throw new Error("创建用户失败，请稍后重试");
+    return handlePocketBaseError(error, "create user");
   }
 }
 
@@ -122,4 +147,28 @@ export async function getAllSystemsCount(): Promise<number> {
   await loginSuperuser();
   const systems = await superuserClient.collection("systems").getList(1, 1);
   return systems.totalItems;
+}
+
+export async function syncAllUserSystems(): Promise<void> {
+  try {
+    await loginSuperuser();
+    // 获取所有用户
+    const users = await superuserClient.collection("users").getFullList();
+    // 获取所有系统
+    const systems = await superuserClient.collection("systems").getFullList();
+
+    // 为每个用户同步所有系统
+    for (const user of users) {
+      for (const system of systems) {
+        const users: string[] = system.users || [];
+        if (!users.includes(user.id)) {
+          await superuserClient.collection("systems").update(system.id, {
+            users: [...users, user.id],
+          });
+        }
+      }
+    }
+  } catch (error) {
+    handlePocketBaseError(error, "sync all systems");
+  }
 }

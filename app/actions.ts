@@ -1,51 +1,35 @@
 "use server"
 
 import { cookies } from "next/headers";
-import { findUser, createUser, syncUserSystems, getVisibleSystems, getAllSystemsCount } from "@/lib/beszel";
+import { findUser, createUser, syncUserSystems, getVisibleSystems, getAllSystemsCount, syncAllUserSystems } from "@/lib/beszel";
 
 export async function createAccount() {
-  const userCookie = cookies().get("user")?.value;
-  if (!userCookie) {
-    throw new Error("未登录");
+  try {
+    const userCookie = cookies().get("user")?.value;
+    if (!userCookie) {
+      throw new Error("Not logged in");
+    }
+
+    const oidcUser = JSON.parse(userCookie);
+    const username = oidcUser.preferred_username || oidcUser.email;
+    
+    let user = await findUser(username);
+    
+    if (!user) {
+      user = await createUser({
+        username,
+        email: oidcUser.email,
+        name: oidcUser.name || username,
+      });
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Create account error:", error);
+    throw error instanceof Error 
+      ? error 
+      : new Error("Failed to create account");
   }
-
-  const oidcUser = JSON.parse(userCookie);
-  const username = oidcUser.preferred_username || oidcUser.email;
-  
-  // 检查用户是否已存在
-  let user = await findUser(username);
-  
-  if (!user) {
-    // 创建新用户
-    user = await createUser({
-      username,
-      email: oidcUser.email,
-      name: oidcUser.name || username,
-    });
-  }
-
-  return { success: true };
-}
-
-export async function syncServers() {
-  const userCookie = cookies().get("user")?.value;
-  if (!userCookie) {
-    throw new Error("未登录");
-  }
-
-  const oidcUser = JSON.parse(userCookie);
-  const username = oidcUser.preferred_username || oidcUser.email;
-  
-  // 获取用户
-  const user = await findUser(username);
-  if (!user) {
-    throw new Error("用户不存在");
-  }
-
-  // 同步服务器
-  await syncUserSystems(user.id);
-
-  return { success: true };
 }
 
 export async function logout() {
@@ -74,5 +58,22 @@ export async function getUserStatus() {
     needsSync: user ? systems.length < totalSystems : false,
     role: user?.role as "user" | "readonly" | undefined,
   };
+}
+
+export async function syncAllSystems() {
+  try {
+    const userCookie = cookies().get("user")?.value;
+    if (!userCookie) {
+      throw new Error("Not logged in");
+    }
+
+    await syncAllUserSystems();
+    return { success: true };
+  } catch (error) {
+    console.error("Sync all systems error:", error);
+    throw error instanceof Error 
+      ? error 
+      : new Error("Failed to sync systems");
+  }
 }
 
