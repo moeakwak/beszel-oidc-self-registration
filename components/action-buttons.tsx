@@ -1,57 +1,67 @@
 "use client"
 
-import { useState } from "react"
 import { Button } from "@/components/ui/button"
+import { createAccount, syncServers, getUserStatus } from "@/app/actions"
 import { toast } from "sonner"
-import { createAccount, syncServers } from "@/app/actions"
-import { useRouter } from "next/navigation"
+import { useState } from "react"
+import { Loader2 } from "lucide-react"
 
 interface ActionButtonsProps {
   isRegistered: boolean
+  needsSync: boolean
 }
 
-export function ActionButtons({ isRegistered }: ActionButtonsProps) {
-  const [isLoading, setIsLoading] = useState(false)
-  const router = useRouter()
+export function ActionButtons({ isRegistered, needsSync }: ActionButtonsProps) {
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleCreateAccount = async () => {
-    setIsLoading(true)
+  const handleAction = async (action: () => Promise<any>, successMessage: string) => {
+    setIsLoading(true);
     try {
-      await createAccount()
-      toast.success("Account created successfully")
-      router.refresh()
+      await action();
+      toast.success(successMessage);
+      // 刷新页面以获取最新状态
+      window.location.reload();
     } catch (error) {
-      toast.error("Failed to create account")
+      toast.error(error instanceof Error ? error.message : "操作失败，请重试");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
-
-  const handleSyncServers = async () => {
-    setIsLoading(true)
-    try {
-      await syncServers()
-      toast.success("Servers synced successfully")
-      router.refresh()
-    } catch (error) {
-      toast.error("Failed to sync servers")
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  if (isRegistered) {
-    return (
-      <Button onClick={handleSyncServers} disabled={isLoading}>
-        {isLoading ? "Syncing..." : "Sync Visible Systems"}
-      </Button>
-    )
-  }
+  };
 
   return (
-    <Button onClick={handleCreateAccount} disabled={isLoading}>
-      {isLoading ? "Creating..." : "Create Account"}
-    </Button>
+    <div className="flex gap-4">
+      {!isRegistered && (
+        <Button
+          onClick={() => handleAction(createAccount, "账号创建成功")}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              创建中...
+            </>
+          ) : (
+            "创建账号"
+          )}
+        </Button>
+      )}
+      
+      {isRegistered && needsSync && (
+        <Button
+          onClick={() => handleAction(syncServers, "服务器同步成功")}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              同步中...
+            </>
+          ) : (
+            "同步服务器"
+          )}
+        </Button>
+      )}
+    </div>
   )
 }
 

@@ -7,6 +7,31 @@ import { cookies } from "next/headers"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { env } from "@/env"
 import { getUserStatus } from "./actions"
+import { Badge } from "@/components/ui/badge"
+import { Skeleton } from "@/components/ui/skeleton"
+import React from "react"
+import { ErrorState } from "@/components/error-state"
+
+// 加载状态组件
+function LoadingState() {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>用户信息</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="grid grid-cols-[100px_1fr] gap-4 items-center sm:grid-cols-[120px_1fr]">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <React.Fragment key={i}>
+              <Skeleton className="h-4 w-20" />
+              <Skeleton className="h-4 w-full" />
+            </React.Fragment>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
 
 export default async function HomePage() {
   const userCookie = cookies().get("user")?.value;
@@ -32,14 +57,25 @@ export default async function HomePage() {
     )
   }
 
-  const { isRegistered, visibleServers } = await getUserStatus();
+  let userData;
+  let error;
 
-  const userData = {
-    name: user.name || "未知用户",
-    username: user[env.OIDC_USERNAME_CLAIM] || user.email,
-    email: user.email,
-    isRegistered,
-    visibleServers,
+  try {
+    const { isRegistered, systems, totalSystems, needsSync, role } = await getUserStatus();
+    userData = {
+      name: user.name || "未知用户",
+      username: user[env.OIDC_USERNAME_CLAIM] || user.email,
+      email: user.email,
+      isRegistered,
+      visibleServers: systems.length,
+      totalSystems,
+      systems,
+      needsSync,
+      role,
+    };
+  } catch (e) {
+    error = e instanceof Error ? e.message : "未知错误";
+    console.error(error);
   }
 
   return (
@@ -54,10 +90,22 @@ export default async function HomePage() {
               </a>
             </Button>
           </div>
-          <UserInfo {...userData} />
-          <div className="flex justify-center">
-            <ActionButtons isRegistered={isRegistered} />
-          </div>
+          
+          {error ? (
+            <ErrorState error={error} />
+          ) : !userData ? (
+            <LoadingState />
+          ) : (
+            <>
+              <UserInfo {...userData} />
+              <div className="flex justify-center">
+                <ActionButtons 
+                  isRegistered={userData.isRegistered} 
+                  needsSync={userData.needsSync}
+                />
+              </div>
+            </>
+          )}
         </div>
       </div>
     </>

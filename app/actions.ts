@@ -1,7 +1,7 @@
 "use server"
 
 import { cookies } from "next/headers";
-import { findUser, createUser, syncUserSystems, getVisibleServersCount } from "@/lib/beszel";
+import { findUser, createUser, syncUserSystems, getVisibleSystems, getAllSystemsCount } from "@/lib/beszel";
 
 export async function createAccount() {
   const userCookie = cookies().get("user")?.value;
@@ -64,11 +64,15 @@ export async function getUserStatus() {
   const username = oidcUser.preferred_username || oidcUser.email;
   
   const user = await findUser(username);
-  const visibleServers = user ? await getVisibleServersCount(user.id) : 0;
+  const systems = user ? await getVisibleSystems(user.id) : [];
+  const totalSystems = await getAllSystemsCount();
   
   return {
     isRegistered: !!user,
-    visibleServers,
+    systems,
+    totalSystems,
+    needsSync: user ? systems.length < totalSystems : false,
+    role: user?.role as "user" | "readonly" | undefined,
   };
 }
 
