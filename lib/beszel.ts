@@ -104,7 +104,7 @@ export async function createUser(data: {
 
 export async function impersonateUserToken(
   userId: string,
-  duration: number = 3600
+  duration: number = 5 * 60
 ) {
   const impersonateClient = await superuserClient
     .collection("users")
