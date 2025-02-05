@@ -55,16 +55,14 @@ export async function findUser(
 function handlePocketBaseError(error: unknown, operation: string): never {
   console.error(`Error during ${operation}:`, error);
   if (error instanceof ClientResponseError) {
-    console.error('Response details:', {
+    console.error("Response details:", {
       status: error.status,
       response: error.response,
       message: error.message,
       data: error.data,
     });
   }
-  throw error instanceof Error 
-    ? error 
-    : new Error(`Failed to ${operation}`);
+  throw error instanceof Error ? error : new Error(`Failed to ${operation}`);
 }
 
 export async function createUser(data: {
@@ -86,7 +84,7 @@ export async function createUser(data: {
       verified: true,
     };
     const user = await superuserClient.collection("users").create(args);
-    
+
     // 创建后立即同步所有系统
     const systems = await superuserClient.collection("systems").getFullList();
     for (const system of systems) {
@@ -97,11 +95,21 @@ export async function createUser(data: {
         });
       }
     }
-    
+
     return user;
   } catch (error) {
     return handlePocketBaseError(error, "create user");
   }
+}
+
+export async function impersonateUserToken(
+  userId: string,
+  duration: number = 3600
+) {
+  const impersonateClient = await superuserClient
+    .collection("users")
+    .impersonate(userId, duration);
+  return impersonateClient.authStore.token;
 }
 
 export async function syncUserSystems(userId: string) {
@@ -170,5 +178,17 @@ export async function syncAllUserSystems(): Promise<void> {
     }
   } catch (error) {
     handlePocketBaseError(error, "sync all systems");
+  }
+}
+
+export async function checkOidcLink(userId: string): Promise<boolean> {
+  await loginSuperuser();
+  try {
+    const externalAuth = await superuserClient
+      .collection('_externalAuths')
+      .getFirstListItem(`recordRef = "${userId}"`);
+    return !!externalAuth;
+  } catch {
+    return false;
   }
 }

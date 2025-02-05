@@ -9,8 +9,11 @@ import {
   Shield, 
   Key, 
   CircleUserRound,
-  Network
+  Network,
+  Link as LinkIcon,
+  Hash
 } from "lucide-react"
+import { OidcLinkButton } from "./oidc-link-button"
 
 interface UserInfoProps {
   name: string
@@ -21,6 +24,8 @@ interface UserInfoProps {
   systems: SystemInfo[]
   totalSystems: number
   role?: "user" | "readonly"
+  isOidcLinked?: boolean
+  userId?: string
 }
 
 export function UserInfo({
@@ -32,6 +37,8 @@ export function UserInfo({
   systems,
   totalSystems,
   role,
+  isOidcLinked = false,
+  userId,
 }: UserInfoProps) {
   return (
     <Card className="backdrop-blur-sm bg-card/80">
@@ -88,6 +95,30 @@ export function UserInfo({
             </>
           )}
           
+          {isRegistered && (
+            <>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <LinkIcon className="h-4 w-4" />
+                <span>OIDC</span>
+              </div>
+              <div>
+                <Badge variant={isOidcLinked ? "default" : "secondary"}>
+                  {isOidcLinked ? "Linked" : "Not Linked"}
+                </Badge>
+              </div>
+            </>
+          )}
+          
+          {isRegistered && userId && (
+            <>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Hash className="h-4 w-4" />
+                <span>User ID</span>
+              </div>
+              <div className="font-mono text-sm truncate">{userId}</div>
+            </>
+          )}
+          
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Network className="h-4 w-4" />
             <span>Systems</span>
@@ -112,6 +143,12 @@ export function UserInfo({
             )}
           </div>
         </div>
+        
+        {!isOidcLinked && userId && (
+          <div className="mt-4">
+            <OidcLinkButton userId={userId} />
+          </div>
+        )}
       </CardContent>
     </Card>
   )

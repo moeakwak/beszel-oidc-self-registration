@@ -61,7 +61,7 @@ export default async function HomePage() {
   let error;
 
   try {
-    const { isRegistered, systems, totalSystems, needsSync, role } = await getUserStatus();
+    const { isRegistered, systems, totalSystems, needsSync, role, isOidcLinked, userId } = await getUserStatus();
     userData = {
       name: user.name || "未知用户",
       username: user[env.OIDC_USERNAME_CLAIM] || user.email,
@@ -72,10 +72,13 @@ export default async function HomePage() {
       systems,
       needsSync,
       role,
+      isOidcLinked,
+      userId,
     };
+    console.log(userData);
   } catch (e) {
     error = e instanceof Error ? e.message : "未知错误";
-    console.error(error);
+    console.error(e);
   }
 
   return (
@@ -97,7 +100,14 @@ export default async function HomePage() {
           ) : !userData ? (
             <LoadingState />
           ) : (
-            <UserInfo {...userData} />
+            <>
+              <UserInfo {...userData} />
+              {!userData.isRegistered && (
+                <div className="flex justify-center">
+                  <ActionButtons />
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
