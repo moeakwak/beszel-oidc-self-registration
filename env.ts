@@ -15,7 +15,8 @@ export const env = createEnv({
    */
   server: {
     BESZEL_URL: z.string(),
-    BESZEL_API_KEY: z.string(),
+    BESZEL_SUPERUSER_EMAIL: z.string(),
+    BESZEL_SUPERUSER_PASSWORD: z.string(),
 
     BASE_URL: z.string(),
 
@@ -32,6 +33,8 @@ export const env = createEnv({
     // develop
     TRPC_TIME_LOGGING: booleanEnv.default(false),
     SITE_NAME: z.string().optional().default("Beszel OIDC Self Registration"),
+
+    USER_CREATION_ROLE: z.enum(['user', 'readonly']).optional().default('readonly'),
   },
 
   /**
@@ -49,7 +52,8 @@ export const env = createEnv({
    */
   runtimeEnv: {
     BESZEL_URL: process.env.BESZEL_URL,
-    BESZEL_API_KEY: process.env.BESZEL_API_KEY,
+    BESZEL_SUPERUSER_EMAIL: process.env.BESZEL_SUPERUSER_EMAIL,
+    BESZEL_SUPERUSER_PASSWORD: process.env.BESZEL_SUPERUSER_PASSWORD,
 
     BASE_URL: process.env.BASE_URL,
 
@@ -66,6 +70,8 @@ export const env = createEnv({
     SITE_NAME: process.env.SITE_NAME,
 
     TRPC_TIME_LOGGING: process.env.TRPC_TIME_LOGGING,
+
+    USER_CREATION_ROLE: process.env.USER_CREATION_ROLE,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
