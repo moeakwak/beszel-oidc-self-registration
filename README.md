@@ -84,15 +84,9 @@ npm run dev
 
 ### Vercel Deployment
 
-This application is optimized for deployment on Vercel. To deploy:
+To deploy:
 
-1. Fork this repository
-2. Create a new project on Vercel
-3. Connect your forked repository
-4. Configure environment variables in Vercel's dashboard
-5. Deploy!
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fyour-username%2Fbeszel-oidc-registration)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fmoeakwak%2Fbeszel-oidc-self-registration&env=BESZEL_URL&env=BESZEL_SUPERUSER_EMAIL&env=BESZEL_SUPERUSER_PASSWORD&env=BASE_URL&env=OIDC_CLIENT_ID&env=OIDC_CLIENT_SECRET&env=OIDC_AUTH_URI&env=OIDC_TOKEN_URI&env=OIDC_USERINFO_URI&env=OIDC_LOGOUT_URI&env=OIDC_USERNAME_CLAIM&env=OIDC_DISPLAY_NAME&env=SITE_NAME)
 
 ### Other Platforms
 

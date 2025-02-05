@@ -20,12 +20,12 @@ export const env = createEnv({
 
     BASE_URL: z.string(),
 
-    OIDC_CLIENT_ID: z.string().optional(),
-    OIDC_CLIENT_SECRET: z.string().optional(),
-    OIDC_AUTH_URI: z.string().optional(),
-    OIDC_TOKEN_URI: z.string().optional(),
-    OIDC_USERINFO_URI: z.string().optional(),
-    OIDC_LOGOUT_URI: z.string().optional(),
+    OIDC_CLIENT_ID: z.string(),
+    OIDC_CLIENT_SECRET: z.string(),
+    OIDC_AUTH_URI: z.string(),
+    OIDC_TOKEN_URI: z.string(),
+    OIDC_USERINFO_URI: z.string(),
+    OIDC_LOGOUT_URI: z.string(),
     OIDC_USERNAME_CLAIM: z.string().optional().default("preferred_username"),
     OIDC_DISPLAY_NAME: z.string().optional().default("OIDC Login"),
     OIDC_SCOPES: z.string().optional().default("openid profile email"),
