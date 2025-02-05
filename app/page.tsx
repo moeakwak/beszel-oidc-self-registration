@@ -1,7 +1,7 @@
 import { UserInfo } from "@/components/user-info"
 import { ActionButtons } from "@/components/action-buttons"
 import { Button } from "@/components/ui/button"
-import { LogOut } from "lucide-react"
+import { LogOut, Shield } from "lucide-react"
 import { Toaster } from "sonner"
 import { cookies } from "next/headers"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
@@ -39,16 +39,19 @@ export default async function HomePage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-8">
-        <Card className="w-[400px]">
-          <CardHeader>
+      <div className="min-h-screen flex items-center justify-center p-8 bg-gradient-to-b from-background to-muted/50">
+        <Card className="w-[400px] backdrop-blur-sm bg-card/80">
+          <CardHeader className="text-center">
             <CardTitle>{env.SITE_NAME}</CardTitle>
-            <CardDescription>请使用您的账号登录以继续</CardDescription>
+            <CardDescription className="mx-auto max-w-[250px]">
+              Sign in with your account to continue
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button asChild className="w-full">
+            <Button asChild className="w-full gap-2">
               <a href="/api/login">
-                {env.OIDC_DISPLAY_NAME} 登录
+                <Shield className="h-4 w-4" />
+                {env.OIDC_DISPLAY_NAME}
               </a>
             </Button>
           </CardContent>

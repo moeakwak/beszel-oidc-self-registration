@@ -27,7 +27,7 @@ export const env = createEnv({
     OIDC_USERINFO_URI: z.string().optional(),
     OIDC_LOGOUT_URI: z.string().optional(),
     OIDC_USERNAME_CLAIM: z.string().optional().default("preferred_username"),
-    OIDC_DISPLAY_NAME: z.string().optional().default("OIDC Connect"),
+    OIDC_DISPLAY_NAME: z.string().optional().default("OIDC Login"),
     OIDC_SCOPES: z.string().optional().default("openid profile email"),
 
     // develop

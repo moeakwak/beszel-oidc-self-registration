@@ -1,10 +1,10 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { createAccount, syncServers, getUserStatus } from "@/app/actions"
+import { createAccount, syncServers } from "@/app/actions"
 import { toast } from "sonner"
 import { useState } from "react"
-import { Loader2 } from "lucide-react"
+import { Loader2, UserPlus, RefreshCw } from "lucide-react"
 
 interface ActionButtonsProps {
   isRegistered: boolean
@@ -19,10 +19,9 @@ export function ActionButtons({ isRegistered, needsSync }: ActionButtonsProps) {
     try {
       await action();
       toast.success(successMessage);
-      // 刷新页面以获取最新状态
       window.location.reload();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "操作失败，请重试");
+      toast.error(error instanceof Error ? error.message : "Operation failed, please try again");
     } finally {
       setIsLoading(false);
     }
@@ -32,32 +31,41 @@ export function ActionButtons({ isRegistered, needsSync }: ActionButtonsProps) {
     <div className="flex gap-4">
       {!isRegistered && (
         <Button
-          onClick={() => handleAction(createAccount, "账号创建成功")}
+          onClick={() => handleAction(createAccount, "Account created successfully")}
           disabled={isLoading}
+          className="gap-2"
         >
           {isLoading ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              创建中...
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Creating...
             </>
           ) : (
-            "创建账号"
+            <>
+              <UserPlus className="h-4 w-4" />
+              Create Account
+            </>
           )}
         </Button>
       )}
       
       {isRegistered && needsSync && (
         <Button
-          onClick={() => handleAction(syncServers, "服务器同步成功")}
+          onClick={() => handleAction(syncServers, "Systems synchronized successfully")}
           disabled={isLoading}
+          variant="secondary"
+          className="gap-2"
         >
           {isLoading ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              同步中...
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Syncing...
             </>
           ) : (
-            "同步服务器"
+            <>
+              <RefreshCw className="h-4 w-4" />
+              Sync Systems
+            </>
           )}
         </Button>
       )}
