@@ -1,7 +1,16 @@
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { SystemInfo } from "@/lib/beszel"
-import { Building2, Mail, User, UserCircle, Shield } from "lucide-react"
+import { 
+  Building2, 
+  Mail, 
+  User, 
+  UserCircle, 
+  Shield, 
+  Key, 
+  CircleUserRound,
+  Network
+} from "lucide-react"
 
 interface UserInfoProps {
   name: string
@@ -28,7 +37,7 @@ export function UserInfo({
     <Card className="backdrop-blur-sm bg-card/80">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <UserCircle className="h-5 w-5" />
+          <CircleUserRound className="h-5 w-5" />
           Profile Information
         </CardTitle>
         <CardDescription>
@@ -44,7 +53,7 @@ export function UserInfo({
           <div className="truncate font-medium">{name}</div>
           
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Shield className="h-4 w-4" />
+            <Key className="h-4 w-4" />
             <span>Username</span>
           </div>
           <div className="truncate font-medium">{username}</div>
@@ -56,7 +65,7 @@ export function UserInfo({
           <div className="truncate font-medium">{email}</div>
           
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Shield className="h-4 w-4" />
+            <UserCircle className="h-4 w-4" />
             <span>Status</span>
           </div>
           <div>
@@ -80,7 +89,7 @@ export function UserInfo({
           )}
           
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Building2 className="h-4 w-4" />
+            <Network className="h-4 w-4" />
             <span>Systems</span>
           </div>
           <div className="space-y-2">
@@ -93,8 +102,9 @@ export function UserInfo({
                   <Badge 
                     key={system.id} 
                     variant="outline"
-                    className="bg-background/50"
+                    className="bg-background/50 flex items-center gap-1.5"
                   >
+                    <Building2 className="h-3 w-3" />
                     {system.name}
                   </Badge>
                 ))}
