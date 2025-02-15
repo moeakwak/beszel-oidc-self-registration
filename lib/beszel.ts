@@ -166,15 +166,10 @@ export async function syncAllUserSystems(): Promise<void> {
     const systems = await superuserClient.collection("systems").getFullList();
 
     // 为每个用户同步所有系统
-    for (const user of users) {
-      for (const system of systems) {
-        const users: string[] = system.users || [];
-        if (!users.includes(user.id)) {
-          await superuserClient.collection("systems").update(system.id, {
-            users: [...users, user.id],
-          });
-        }
-      }
+    for (const system of systems) {
+      await superuserClient.collection("systems").update(system.id, {
+        users: users.map((user) => user.id),
+      });
     }
   } catch (error) {
     handlePocketBaseError(error, "sync all systems");
