@@ -1,41 +1,36 @@
 # Beszel OIDC Self Registration
 
-A self-service portal that complements Beszel's built-in OIDC integration. It allows users to register with their OIDC credentials and automatically gain access to all available systems.
+A self-service portal that addresses issues with Beszel's PocketBase-based OIDC user creation. It provides a reliable way for users to register Beszel accounts using their organizational OIDC credentials.
 
 ## Motivation
 
-While Beszel supports OIDC authentication through environment variables, the built-in integration has some limitations:
-- Users created via OIDC don't have their email addresses set
-- New users don't automatically get access to existing systems
-- No control over the default user role
+Beszel, which is built on PocketBase, has some limitations with its OIDC user creation:
+- The built-in OIDC authentication in PocketBase may have stability issues
+- Manual user creation and OIDC linking can be cumbersome
+- Organizations need a reliable self-service solution
 
-This project addresses these limitations by providing:
-- Proper user creation with email addresses from OIDC claims
-- Automatic synchronization of system access permissions
+This project provides:
+- A stable and reliable OIDC user registration process
+- Proper user creation through Beszel's PocketBase API
+- Automatic OIDC account linking after user creation
 - Configurable default role (read-only/user) for new registrations
 
 ## Use Case
 
 This portal is ideal for organizations that:
-- Use OIDC (e.g., Keycloak, Auth0) for authentication
-- Want to allow self-service registration for Beszel
-- Prefer to give all users read-only access by default
-- Want new users to automatically see all available systems
+- Use Beszel with OIDC authentication
+- Need a reliable self-service registration process
+- Want to ensure proper user creation and OIDC linking
+- Prefer to give new users a read-only default role
 
 ## Features
 
 - Seamless OIDC authentication integration
-- Self-service account creation with proper email mapping
-- Automatic system access synchronization for all available systems
-- Configurable role-based access control (regular user/read-only)
-- Modern, responsive UI with dark mode support
+- Proper user creation via PocketBase API
+- Automatic OIDC account linking
+- Configurable role-based access control
 
-## Prerequisites
-
-- Node.js 18+
-- A running Beszel instance
-- An OIDC provider (e.g., Keycloak, Auth0, etc.)
-- A Beszel superuser account
+## How to use
 
 ## Environment Variables
 
@@ -92,27 +87,17 @@ To deploy:
 
 You can also deploy this application to any platform that supports Next.js applications:
 
-1. Build the application:
-```bash
-npm run build
-```
-
-2. Start the production server:
-```bash
-npm start
-```
-
 ## User Flow
 
 1. User visits the application
-2. Authenticates with your organization's OIDC provider
+2. Authenticates with the organization's OIDC provider
 3. After successful authentication:
-   - For new users: Creates a Beszel account with:
-     - Username and email from OIDC claims
-     - Configurable default role (typically read-only)
-     - Access to all available systems
-   - For existing users: Shows current system access status
-4. Users can sync their system access if new systems are available
+   - For new users:
+     - Creates a Beszel account through PocketBase API
+     - Links the OIDC account to the created user
+     - Sets the configured default role
+   - For existing users: Shows account status and OIDC link status
+4. Users can manually link their OIDC account if needed
 
 ## Security Considerations
 
@@ -122,19 +107,27 @@ npm start
 - Role-based access control is enforced at the Beszel level
 - Default read-only access prevents accidental modifications
 
-## Comparison with Built-in OIDC
+## How It Works
 
-| Feature | Built-in OIDC | This Portal |
-|---------|--------------|-------------|
-| User Creation | Automatic | Automatic |
-| Email Setting | No | Yes |
-| System Access | None | All Systems |
-| Role Control | No | Yes |
-| Access Sync | No | Yes |
+1. **OIDC Authentication**
+   - Uses the Arctic library for OIDC authentication
+   - Handles the OAuth2 flow securely
+   - Retrieves user information from the OIDC provider
+
+2. **User Creation**
+   - Creates users through Beszel's PocketBase API
+   - Sets email and username from OIDC claims
+   - Assigns the configured default role
+
+3. **OIDC Linking**
+   - Automatically links OIDC account after user creation
+   - Provides manual linking option if needed
+   - Uses PocketBase's OAuth2 linking mechanism
 
 ## Notes
 
-- This portal is designed to work alongside Beszel's built-in OIDC integration
-- It's particularly useful for organizations that want to provide immediate system access to new users
-- The default read-only role helps maintain system security while allowing broad access
+- This portal focuses on providing a reliable OIDC registration process
+- It's designed to work with Beszel's PocketBase backend
+- The implementation ensures proper user creation and OIDC linking
+- Default read-only role option helps maintain system security
 
